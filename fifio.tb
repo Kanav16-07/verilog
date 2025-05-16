@@ -1,0 +1,59 @@
+`timescale 1ns/1ps
+
+module fifo_tb;
+
+    reg clk;
+    reg reset;
+    reg wr_en;
+    reg rd_en;
+    reg [7:0] din;
+    wire [7:0] dout;
+    wire full;
+    wire empty;
+
+    fifo uut (
+        .clk(clk),
+        .reset(reset),
+        .wr_en(wr_en),
+        .rd_en(rd_en),
+        .din(din),
+        .dout(dout),
+        .full(full),
+        .empty(empty)
+    );
+
+    always #5 clk = ~clk;
+
+    initial begin
+        clk = 0;
+        reset = 1;
+        wr_en = 0;
+        rd_en = 0;
+        din = 8'd0;
+
+        #10 reset = 0;
+
+        // Write data into FIFO
+        repeat (8) begin
+            @(posedge clk);
+            wr_en = 1;
+            din = din + 1;
+        end
+
+        @(posedge clk);
+        wr_en = 0;
+
+        // Read data from FIFO
+        repeat (8) begin
+            @(posedge clk);
+            rd_en = 1;
+        end
+
+        @(posedge clk);
+        rd_en = 0;
+
+        #20;
+        $finish;
+    end
+
+endmodule
